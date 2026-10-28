@@ -1,27 +1,39 @@
 # ScreenLog — Movie & Series Tracker frontend
 
-A static, responsive frontend prototype for the MovieManager repository.
+Static frontend for the MovieManager repository.
 
 ## Files
 
-- `index.html` — application layout and sections
-- `styles.css` — responsive dark theme
-- `app.js` — sample data, dashboard calculations, search/filter, form validation, and duplicate-title warning
+- `index.html` — application layout
+- `styles.css` — responsive styling
+- `app.js` — dashboard, chart, history filters, form validation and data adapters
 
-## Important: preview mode only
+## Current status: preview mode
 
-This version is intentionally **not connected to Google Sheets or Google Apps Script**. It makes no network requests and includes no spreadsheet credentials or API URL. The eight sample history entries are illustrative preview data, not a complete copy of the spreadsheet.
+The app is deliberately configured with `API_CONFIG.enabled = false` and an empty API URL. It makes no network requests. Sample entries and sample dashboard data are displayed locally.
 
-Adding a title only changes the in-memory data in the current browser page. Reloading resets it. Nothing is written to the spreadsheet.
+The sample dashboard shape mirrors the current Apps Script `calculateDashboardData()` result, and sample history rows use the actual sheet-column names. The monthly chart consumes the same `monthlyTrend` shape as the Apps Script output.
 
-## Preview locally
+Adding a title remains browser-preview-only. It does not update Google Sheets.
+
+## Local preview
 
 Open `index.html` in a modern browser. No build step or package installation is required.
 
-## Publish with GitHub Pages
+## GitHub Pages
 
-After committing these files to the repository, open **Settings → Pages** in GitHub and configure the source to deploy from the `main` branch and `/ (root)` folder. This only publishes the static frontend. It does not deploy or expose the Apps Script API.
+Publish from the `main` branch and `/ (root)` folder in repository Settings → Pages. Publishing this frontend does not deploy Apps Script.
 
-## Before connecting Apps Script
+## Before enabling live read access
 
-The current Apps Script handler supports read-only `dashboard`, `recentHistory`, and `checkDuplicate` actions. Before making any browser requests to it, test the deployed web app's access and cross-origin behavior. Do not put credentials or secrets in client-side code. Add-entry persistence requires a separately reviewed, validated server-side write endpoint; do not assume the preview form writes to the sheet.
+1. Review the Apps Script web-app access settings and the risks of exposing read endpoints.
+2. Deploy only after explicit approval.
+3. Test a browser request from the GitHub Pages origin, including the ContentService redirect and CORS behavior.
+4. Configure `API_CONFIG.enabled = true` and set `API_CONFIG.url` to the deployed web-app URL only after those tests.
+5. Verify that the endpoint returns `{ "ok": true, "data": ... }` for `dashboard`, `recentHistory`, and `checkDuplicate`.
+
+No secrets or spreadsheet credentials should be added to client-side files.
+
+## No writes yet
+
+The add form only updates in-memory preview data. Do not interpret this as persistence to Google Sheets. A write endpoint requires a separate design, server-side validation and explicit review.

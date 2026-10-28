@@ -219,3 +219,10 @@ textarea.text-input { resize: vertical; min-height: 95px; }
   .rating-score strong { font-size: 43px; }
   .modal { padding: 23px 18px; }
 }
+
+.month-summary { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px; color:#8995aa; font-size:10px; }
+.month-summary strong { color:#e1dcff; font-size:12px; margin-left:auto; }
+.month-change { border-radius:5px; padding:3px 6px; color:#a9b5c8; background:#222b3b; font-size:9px; }
+.month-change.positive { color:#81dfb9; background:#1d3a32; }
+.month-change.negative { color:#f0adad; background:#3a252c; }
+.month-change.neutral { color:#a9b5c8; background:#222b3b; }
