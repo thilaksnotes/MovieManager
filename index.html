@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10141d">
+  <title>ScreenLog — Movie & Series Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="ScreenLog home">
+        <span class="brand-mark">S<span>·</span></span>
+        <span><strong>ScreenLog</strong><small>YOUR WATCH JOURNAL</small></span>
+      </a>
+
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="dashboard"><span class="nav-icon">▦</span> Dashboard</button>
+        <button class="nav-link" data-view="history"><span class="nav-icon">◷</span> Watch history</button>
+        <button class="nav-link" data-view="add"><span class="nav-icon">＋</span> Add a title</button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="mode-card">
+          <span class="mode-dot"></span>
+          <div><strong>Preview mode</strong><small>Sample data only</small></div>
+        </div>
+        <p class="sidebar-note">Your watch journal, thoughtfully organised.</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Toggle navigation">☰</button>
+        <div class="breadcrumb">Your library <span>/</span> <strong id="pageCrumb">Dashboard</strong></div>
+        <div class="topbar-right"><span class="preview-pill"><span></span> PREVIEW</span><div class="avatar">SL</div></div>
+      </header>
+
+      <div class="demo-banner">
+        <span class="banner-icon">ⓘ</span>
+        <p><strong>Frontend preview</strong> — this version uses sample data in your browser. It is not connected to Google Sheets, and adding entries here will not update your spreadsheet.</p>
+        <button id="dismissBanner" aria-label="Dismiss preview notice">×</button>
+      </div>
+
+      <section class="view active" id="view-dashboard">
+        <div class="page-heading">
+          <div><p class="eyebrow">YOUR PERSONAL WATCH JOURNAL</p><h1>Good evening<span class="heading-period">.</span></h1><p class="subheading">A little look back at what you've been watching.</p></div>
+          <button class="primary-btn" data-go="add"><span>＋</span> Add a title</button>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Total entries</span><span class="stat-symbol violet">▤</span></div><div class="stat-value" id="statEntries">137</div><div class="stat-foot">Across your watch journal</div></article>
+          <article class="stat-card"><div class="stat-top"><span>Movies</span><span class="stat-symbol blue">▣</span></div><div class="stat-value" id="statMovies">105</div><div class="stat-foot">Feature-length stories</div></article>
+          <article class="stat-card"><div class="stat-top"><span>Series</span><span class="stat-symbol amber">▥</span></div><div class="stat-value" id="statSeries">32</div><div class="stat-foot">Series watched</div></article>
+          <article class="stat-card"><div class="stat-top"><span>Time watched</span><span class="stat-symbol green">◷</span></div><div class="stat-value compact" id="statTime">395h 31m</div><div class="stat-foot">Total recorded watch time</div></article>
+        </div>
+
+        <div class="content-grid">
+          <article class="panel trend-panel">
+            <div class="panel-heading"><div><h2>Viewing overview</h2><p>How your watch time adds up</p></div><span class="small-tag">SAMPLE DATA</span></div>
+            <div class="trend-summary"><strong id="trendTotal">395h 31m</strong><span>total watch time</span></div>
+            <div class="chart" id="monthlyChart" role="img" aria-label="Sample monthly watch-time chart"></div>
+            <div class="chart-legend"><span><i></i> Watch time (hours)</span><span class="chart-note">Illustrative monthly distribution</span></div>
+          </article>
+          <article class="panel rating-panel">
+            <div class="panel-heading"><div><h2>Your ratings</h2><p>A quick read on your taste</p></div><span class="stat-symbol amber">★</span></div>
+            <div class="rating-score"><strong id="statRating">7.3</strong><span>/ 10</span></div>
+            <div class="rating-stars" aria-label="Average rating 7.3 out of 10">★★★★★★★<span>★★★</span></div>
+            <div class="rating-meter"><span style="width:73%"></span></div>
+            <div class="rating-caption"><span>Average rating</span><strong id="ratedCount">137 rated entries</strong></div>
+            <div class="rating-tip"><span>✦</span><p>Your ratings help you remember the stories that stayed with you.</p></div>
+          </article>
+        </div>
+
+        <article class="panel recent-panel">
+          <div class="panel-heading"><div><h2>Recently watched</h2><p>Your latest entries, at a glance</p></div><button class="text-btn" data-go="history">View all <span>→</span></button></div>
+          <div class="table-wrap"><table><thead><tr><th>TITLE</th><th>TYPE</th><th>LANGUAGE</th><th>RATING</th><th>END DATE</th></tr></thead><tbody id="recentRows"></tbody></table></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-history">
+        <div class="page-heading"><div><p class="eyebrow">THE STORIES YOU'VE SEEN</p><h1>Watch history<span class="heading-period">.</span></h1><p class="subheading">Search, browse and revisit your watch journal.</p></div><button class="primary-btn" data-go="add"><span>＋</span> Add a title</button></div>
+        <article class="panel history-panel">
+          <div class="history-tools"><label class="search-box"><span>⌕</span><input id="historySearch" type="search" placeholder="Search titles, genres, observations…" aria-label="Search watch history"></label><select id="typeFilter" aria-label="Filter by type"><option value="all">All types</option><option value="Movie">Movies</option><option value="Series">Series</option></select><select id="languageFilter" aria-label="Filter by language"><option value="all">All languages</option></select></div>
+          <div class="result-count" id="resultCount">Showing 5 entries</div>
+          <div class="table-wrap"><table><thead><tr><th>TITLE</th><th>TYPE</th><th>LANGUAGE</th><th>RATING</th><th>WATCH TIME</th><th>END DATE</th></tr></thead><tbody id="historyRows"></tbody></table></div>
+          <div class="empty-state hidden" id="emptyState"><span>⌕</span><strong>No titles found</strong><p>Try another search or change the filters.</p><button class="secondary-btn" id="clearFilters">Clear filters</button></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-add">
+        <div class="page-heading"><div><p class="eyebrow">SAVE IT FOR LATER</p><h1>Add a title<span class="heading-period">.</span></h1><p class="subheading">Keep a note of what you watched and what you thought.</p></div></div>
+        <div class="form-layout">
+          <article class="panel form-panel">
+            <form id="addForm">
+              <div class="form-section-title"><span>01</span><div><h2>Title details</h2><p>The basics of your watch entry</p></div></div>
+              <label class="field-label" for="titleName">Movie or series name <b>*</b></label><input class="text-input" id="titleName" name="title" placeholder="e.g. Paatal Lok S2" required maxlength="180">
+              <div class="field-row"><div><label class="field-label" for="titleType">Type <b>*</b></label><select class="text-input" id="titleType" name="type" required><option value="Movie">Movie</option><option value="Series">Series</option></select></div><div><label class="field-label" for="titleLanguage">Language <b>*</b></label><input class="text-input" id="titleLanguage" name="language" placeholder="e.g. Hindi" required maxlength="60"></div></div>
+              <div class="field-row"><div><label class="field-label" for="startDate">Start date <b>*</b></label><input class="text-input" type="date" id="startDate" name="startDate" required></div><div><label class="field-label" for="endDate">End date</label><input class="text-input" type="date" id="endDate" name="endDate"></div></div>
+              <div class="field-row"><div><label class="field-label" for="rating">Your rating (out of 10)</label><input class="text-input" type="number" id="rating" name="rating" min="0" max="10" step="0.5" placeholder="e.g. 8.5"></div><div><label class="field-label" for="watchTime">Watch time (minutes) <b>*</b></label><input class="text-input" type="number" id="watchTime" name="watchTime" min="1" max="100000" step="1" placeholder="e.g. 420" required></div></div>
+              <label class="field-label" for="genre">Genre</label><input class="text-input" id="genre" name="genre" placeholder="e.g. Thriller, Crime" maxlength="160">
+              <label class="field-label" for="observations">Observations <span class="optional">OPTIONAL</span></label><textarea class="text-input" id="observations" name="observations" rows="4" placeholder="What stood out? Would you recommend it?" maxlength="2000"></textarea>
+              <div class="form-actions"><button type="button" class="secondary-btn" data-go="dashboard">Cancel</button><button type="submit" class="primary-btn">Review entry <span>→</span></button></div>
+              <p class="form-footnote">Preview only: this entry is stored in this browser session and is not sent to Google Sheets.</p>
+            </form>
+          </article>
+          <aside class="form-aside"><div class="aside-art"><span class="art-orbit orbit-one"></span><span class="art-orbit orbit-two"></span><span class="art-screen">▶</span><span class="art-star">✦</span></div><p class="eyebrow">YOUR STORY, YOUR NOTES</p><h3>Every watch has a memory.</h3><p>Record the title, your rating and the details you’ll want to remember later.</p><div class="aside-rule"></div><div class="aside-stat"><span>✧</span><p><strong>One entry at a time</strong><br>Keep your watch history tidy and easy to revisit.</p></div></aside>
+        </div>
+      </section>
+
+      <footer class="app-footer"><span>ScreenLog <span class="footer-dot">·</span> Personal watch journal</span><span>Frontend preview <span class="footer-dot">·</span> Not connected to Sheets</span></footer>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="duplicateModal" role="dialog" aria-modal="true" aria-labelledby="duplicateTitle">
+    <div class="modal"><button class="modal-close" id="closeModal" aria-label="Close dialog">×</button><div class="modal-icon">!</div><p class="eyebrow">POSSIBLE DUPLICATE</p><h2 id="duplicateTitle">You've logged a similar title.</h2><p id="duplicateMessage">A matching title is already in your preview history.</p><div id="duplicateMatches" class="duplicate-matches"></div><p class="modal-note">It may be a different season or rewatch. You can still add it in this preview.</p><div class="modal-actions"><button class="secondary-btn" id="cancelDuplicate">Go back</button><button class="primary-btn" id="addAnyway">Add anyway</button></div></div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
