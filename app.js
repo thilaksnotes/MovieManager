@@ -7,8 +7,8 @@
   "use strict";
 
   const API_CONFIG = {
-    enabled: false,
-    url: ""
+    enabled: true,
+    url: "https://script.google.com/macros/s/AKfycbzHltMfXjsKxuu0sEn7ljPYpDez4Eq3Rto7gpcfIOtMgCDWHHyEvXeJUu7N62mfeai3/exec"
   };
 
   const SAMPLE_DASHBOARD = {
