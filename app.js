@@ -128,6 +128,68 @@
     return payload;
   }
 
+  
+async function postApiAction(action, payload) {
+  if (!API_CONFIG.enabled || !API_CONFIG.url) {
+    throw new Error("Live API is not configured.");
+  }
+
+  const form = new URLSearchParams();
+  form.set("payload", JSON.stringify({ action, payload }));
+
+  // Apps Script's cross-origin POST response is opaque here.
+  // We confirm the save by reloading and checking the live entry count.
+  await fetch(API_CONFIG.url, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+    },
+    body: form.toString()
+  });
+}
+
+async function saveLiveEntry(entry, allowDuplicate = false) {
+  const beforeCount = entries.length;
+  const submitButton = $("#addForm button[type='submit']");
+  const addAnywayButton = $("#addAnyway");
+
+  submitButton.disabled = true;
+  addAnywayButton.disabled = true;
+  submitButton.textContent = "Saving to Google Sheets…";
+
+  try {
+    await postApiAction("addEntry", {
+      ...entry,
+      allowDuplicate
+    });
+
+    // Allow the sheet write to complete before refreshing.
+    await new Promise(resolve => setTimeout(resolve, 700));
+    await loadLiveReadData();
+
+    if (entries.length <= beforeCount) {
+      throw new Error(
+        "The save could not be confirmed. Check Google Sheets before retrying, to avoid adding a duplicate."
+      );
+    }
+
+    resetForm();
+    closeDuplicateModal();
+    navigate("history");
+    showToast("Entry saved to Google Sheets.");
+  } catch (error) {
+    showToast(
+      `Save could not be confirmed: ${error.message}. Check the sheet before retrying.`
+    );
+  } finally {
+    submitButton.disabled = false;
+    addAnywayButton.disabled = false;
+    submitButton.innerHTML = "Review entry <span>→</span>";
+  }
+}
+
+  
   async function loadLiveReadData() {
     const [dashboardResponse, historyResponse] = await Promise.all([
       getApiResponse("dashboard"),
@@ -151,7 +213,7 @@
     $("#topStatus").innerHTML = `<span></span> ${live ? "LIVE READ-ONLY" : "PREVIEW"}`;
     $("#bannerTitle").textContent = live ? "Read-only connection" : "Frontend preview";
     $("#bannerMessage").textContent = live
-      ? "Dashboard and history are loaded from Google Sheets. Adding a title remains preview-only until a write endpoint is separately implemented and approved."
+      ? "Dashboard and history are loaded from Google Sheets. New entries can be saved to your spreadsheet."
       : "this version uses sample data in your browser. It is not connected to Google Sheets, and adding entries here will not update your spreadsheet.";
     $("#chartNote").textContent = live ? "From spreadsheet date-allocation calculations" : "Sample monthly distribution";
   }
@@ -361,25 +423,48 @@
       $("#languageFilter").value = "all";
       renderHistory();
     });
-    $("#addForm").addEventListener("submit", async event => {
-      event.preventDefault();
-      const entry = readForm();
-      if (!entry) return;
-      const submitButton = $("#addForm button[type='submit']");
-      submitButton.disabled = true;
-      submitButton.textContent = "Checking title…";
-      try {
-        const duplicates = await checkDuplicateTitle(entry.title);
-        if (duplicates.length) openDuplicateModal(entry, duplicates);
-        else savePreviewEntry(entry);
-      } catch (error) {
-        showToast(`Duplicate check failed: ${error.message}`);
-      } finally {
-        submitButton.disabled = false;
-        submitButton.innerHTML = "Review entry <span>→</span>";
-      }
-    });
-    $("#addAnyway").addEventListener("click", () => { if (pendingEntry) savePreviewEntry(pendingEntry); });
+
+$("#addForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const entry = readForm();
+  if (!entry) return;
+
+  const submitButton = $("#addForm button[type='submit']");
+  submitButton.disabled = true;
+  submitButton.textContent = "Checking title…";
+
+  try {
+    const duplicates = await checkDuplicateTitle(entry.title);
+
+    if (duplicates.length) {
+      openDuplicateModal(entry, duplicates);
+    } else if (API_CONFIG.enabled && API_CONFIG.url) {
+      await saveLiveEntry(entry, false);
+    } else {
+      savePreviewEntry(entry);
+    }
+  } catch (error) {
+    showToast(`Entry could not be processed: ${error.message}`);
+  } finally {
+    submitButton.disabled = false;
+    submitButton.innerHTML = "Review entry <span>→</span>";
+  }
+});
+
+    
+$("#addAnyway").addEventListener("click", async () => {
+  if (!pendingEntry) return;
+
+  const entry = pendingEntry;
+
+  if (API_CONFIG.enabled && API_CONFIG.url) {
+    await saveLiveEntry(entry, true);
+  } else {
+    savePreviewEntry(entry);
+  }
+});
+
     $("#cancelDuplicate").addEventListener("click", closeDuplicateModal);
     $("#closeModal").addEventListener("click", closeDuplicateModal);
     $("#duplicateModal").addEventListener("click", event => { if (event.target === $("#duplicateModal")) closeDuplicateModal(); });
